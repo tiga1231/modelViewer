@@ -1,0 +1,105 @@
+<html>
+<head>
+  
+<!-- <script src="https://d3js.org/d3.v4.js"></script> -->
+<script src="jslibs/d3/d3.js"></script>
+<script src="jslibs/math.js"></script>
+
+<script src="data.json"></script>
+<script src="jslibs/utils.js"></script>
+
+<style>
+svg{
+    background: #fff;
+}
+div.layer{
+  margin-top: 50px;
+}
+</style>
+</head>
+<body>
+
+<div id="plot">
+</div>
+
+<script>
+'use strict';
+
+function drawLayer(rootDiv, data=data[0], key='o', pixelSize=2){
+
+  var imgs = data[key];
+  var sc = 'auto';
+
+  var n = imgs.length;
+  var s = utils.squarify(n);
+  var rows = s[0];
+  var cols = s[1];
+
+  var div = rootDiv.append('div')
+  .attr('class', 'layer')
+  .append('h2')
+  .text(data.title);
+
+  if(math.size(imgs).length==3){
+    
+    var size = math.size(imgs[0]);
+    var padding = rows * size[0] * pixelSize * 0.05;
+
+    var height = rows*size[0]* pixelSize + (rows-1)*padding;
+    var width = cols* size[1] * pixelSize + (cols-1)*padding;
+
+    div.append('div')
+    .attr('class', 'svg')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .call(utils.drawLayer, imgs, pixelSize, padding, 'auto');
+
+  }else if(math.size(imgs).length==1){
+    var img = imgs;
+
+    var padding = rows * pixelSize * 0.05;
+
+    var height = rows * pixelSize + (rows-1)*padding;
+    var width = cols * pixelSize + (cols-1)*padding;
+
+    div.append('div')
+    .attr('class', 'svg')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height)
+    .call(utils.img, img, pixelSize);
+
+  }
+  
+}
+
+
+function adaptivePixelSize(imgs, max=500){
+  var n = imgs.length;
+  var s = utils.squarify(n);
+  var rows = s[0];
+  var cols = s[1];
+
+  if(math.size(imgs).length==3){
+    var width = imgs[0][0].length * cols;
+    return max / width;
+  }else if (math.size(imgs).length==1){
+    var width = cols;
+    return max / width;
+  }
+
+}
+
+var rootDiv = d3.select('#plot');
+
+for (var i = 0; i < data.length; i++) {
+  console.log(i);
+  var key = 'o';
+  var pixelSize = adaptivePixelSize(data[i][key], 400);
+  drawLayer(rootDiv, data[i], key, pixelSize);
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<html>
+<head>
+  
+<!-- <script src="https://d3js.org/d3.v4.js"></script> -->
+<script src="jslibs/d3/d3.js"></script>
+<script src="jslibs/math.js"></script>
+
+<script src="data0.json"></script>
+<script src="jslibs/utils.js"></script>
+
+<style>
+svg{
+    background: #fff;
+}
+
+</style>
+</head>
+<body>
+
+<!-- <div>
+  <img src='data0.png'>
+  <img src='data1.jpg'>
+</div> -->
+
+<div id="plot">
+</div>
+
+<script>
+'use strict';
+
+function drawLayer(rootDiv, data=data[0], key='o', pixelSize=2){
+
+  var imgs = data[key];
+  var sc = 'auto';
+
+  var n = imgs.length;
+  var s = utils.squarify(n);
+  var rows = s[0];
+  var cols = s[1];
+
+  var div = rootDiv.append('div')
+  .attr('class', 'layer')
+  .append('h2')
+  .text(data.title);
+
+  if(math.size(imgs).length==3){
+    
+    var size = math.size(imgs[0]);
+    var padding = rows * size[0] * pixelSize * 0.02;
+
+    var height = rows*size[0]* pixelSize + (rows-1)*padding;
+    var width = cols*size[1] * pixelSize + (cols-1)*padding;
+
+    var canvas = div.append('div')
+    .attr('class', 'draw')
+    .append('canvas')
+    .attr('width', width)
+    .attr('height', height)
+
+    console.log(height, width);
+
+    var context = canvas.node().getContext("2d");
+
+    utils.drawLayer(context, imgs, pixelSize, padding, 'auto');
+
+  }else if(math.size(imgs).length==1){
+    var img = imgs;
+    var height = rows * pixelSize;
+    var width = cols * pixelSize;
+
+    console.log(height, width);
+
+
+    var canvas = div.append('div')
+    .attr('class', 'draw')
+    .append('canvas')
+    .attr('width', width)
+    .attr('height', height);
+    var context = canvas.node().getContext("2d");
+    utils.img(context, img, pixelSize);
+
+  }
+  
+}
+
+
+function adaptivePixelSize(imgs, max=500){
+  var n = imgs.length;
+  var s = utils.squarify(n);
+  var rows = s[0];
+  var cols = s[1];
+
+  if(math.size(imgs).length==3){
+    var width = imgs[0][0].length * cols;
+    return max / width;
+  }else if (math.size(imgs).length==1){
+    var width = cols;
+    return max / width;
+  }
+
+}
+
+var rootDiv = d3.select('#plot');
+for (var i = 0; i < data.length; i++) {
+  console.log(i);
+  var key = 'o';
+  var pixelSize = adaptivePixelSize(data[i][key], 1000);
+  drawLayer(rootDiv, data[i], key, pixelSize);
+}
+
+</script>
+</body>
+</html>
